@@ -25,6 +25,7 @@ class ItemCard extends StatelessWidget {
           padding: const EdgeInsets.all(8),
           child: Center(
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(item.icon, color: item.foregroundColor, size: 30.0),

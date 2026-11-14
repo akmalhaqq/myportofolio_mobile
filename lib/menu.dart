@@ -31,55 +31,62 @@ class MyHomePage extends StatelessWidget {
         ),
       ),
 
-      // Body halaman utama dengan padding.
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // Tiga kartu informasi secara horizontal.
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                InfoCard(title: 'NPM', content: npm),
-                InfoCard(title: 'Name', content: nama),
-                InfoCard(title: 'Class', content: kelas),
-              ],
-            ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              const spacing = 12.0;
+              final cardWidth = constraints.maxWidth < 600
+                  ? constraints.maxWidth
+                  : (constraints.maxWidth - 2 * spacing) / 3;
 
-            const SizedBox(height: 16.0),
-
-            // Pesan sambutan dan tombol menu.
-            Center(
-              child: Column(
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.only(top: 16.0),
-                    child: Text(
+              return SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Wrap(
+                      spacing: spacing,
+                      runSpacing: spacing,
+                      children: [
+                        SizedBox(
+                          width: cardWidth,
+                          child: InfoCard(title: 'NPM', content: npm),
+                        ),
+                        SizedBox(
+                          width: cardWidth,
+                          child: InfoCard(title: 'Name', content: nama),
+                        ),
+                        SizedBox(
+                          width: cardWidth,
+                          child: InfoCard(title: 'Class', content: kelas),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    const Text(
                       'Selamat datang di MyPortfolio Mobile!',
+                      textAlign: TextAlign.center,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 18.0,
+                        fontSize: 18,
                       ),
                     ),
-                  ),
-
-                  // GridView menampilkan kartu dalam 3 kolom.
-                  GridView.count(
-                    primary: true,
-                    padding: const EdgeInsets.all(20),
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10,
-                    crossAxisCount: 3,
-                    shrinkWrap: true,
-                    children: items.map((ItemHomepage item) {
-                      return ItemCard(item);
-                    }).toList(),
-                  ),
-                ],
-              ),
-            ),
-          ],
+                    const SizedBox(height: 16),
+                    Wrap(
+                      spacing: spacing,
+                      runSpacing: spacing,
+                      children: [
+                        for (final item in items)
+                          SizedBox(width: cardWidth, child: ItemCard(item)),
+                      ],
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
         ),
       ),
     );

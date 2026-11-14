@@ -73,6 +73,31 @@ void main() {
     }
   });
 
+  testWidgets(
+    'keeps all actions reachable on a narrow screen with large text',
+    (tester) async {
+      addTearDown(() async {
+        tester.platformDispatcher.clearTextScaleFactorTestValue();
+        await tester.binding.setSurfaceSize(null);
+      });
+
+      await tester.binding.setSurfaceSize(const Size(320, 480));
+      tester.platformDispatcher.textScaleFactorTestValue = 2;
+      await tester.pumpWidget(const MyApp());
+
+      expect(tester.takeException(), isNull);
+
+      for (final label in ['Lihat Proyek', 'Tambah Proyek', 'Logout']) {
+        final action = find.text(label);
+        await tester.ensureVisible(action);
+        await tester.pumpAndSettle();
+
+        expect(action.hitTestable(), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      }
+    },
+  );
+
   const actions = {
     'Lihat Proyek': Icons.folder,
     'Tambah Proyek': Icons.add_circle,
