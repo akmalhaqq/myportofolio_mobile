@@ -1,30 +1,51 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
 import 'package:myportofolio_mobile/main.dart';
+import 'package:myportofolio_mobile/widgets/info_card.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
+  testWidgets('shows the three portfolio profile cards', (tester) async {
     await tester.pumpWidget(const MyApp());
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    const profile = {
+      'NPM': '2506548295',
+      'Name': 'Muhammad Akmal Haqqani',
+      'Class': 'PBP D',
+    };
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    expect(find.byType(InfoCard), findsNWidgets(3));
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    for (final field in profile.entries) {
+      final card = find.widgetWithText(InfoCard, field.key);
+      expect(card, findsOneWidget);
+      expect(
+        find.descendant(of: card, matching: find.text(field.value)),
+        findsOneWidget,
+      );
+    }
   });
+
+  const actions = {
+    'Lihat Proyek': Icons.folder,
+    'Tambah Proyek': Icons.add_circle,
+    'Logout': Icons.logout,
+  };
+
+  for (final action in actions.entries) {
+    testWidgets('shows the SnackBar for ${action.key}', (tester) async {
+      await tester.pumpWidget(const MyApp());
+
+      final label = find.text(action.key);
+      expect(label, findsOneWidget);
+      expect(find.byIcon(action.value), findsOneWidget);
+
+      await tester.tap(label);
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('Kamu telah menekan tombol ${action.key}!'),
+        findsOneWidget,
+      );
+    });
+  }
 }
