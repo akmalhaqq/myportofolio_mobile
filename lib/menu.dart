@@ -2,15 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:myportofolio_mobile/models/item_homepage.dart';
 import 'package:myportofolio_mobile/widgets/info_card.dart';
 import 'package:myportofolio_mobile/widgets/item_card.dart';
+
 class MyHomePage extends StatelessWidget {
-  MyHomePage({super.key});
+  const MyHomePage({super.key});
   final String npm = "2506548295";
   final String nama = "Muhammad Akmal Haqqani";
   final String kelas = "PBP D";
-  final List<ItemHomepage> items = [
-    ItemHomepage("Lihat Proyek", Icons.folder),
-    ItemHomepage("Tambah Proyek", Icons.add_circle),
-    ItemHomepage("Logout", Icons.logout),
+  final List<ItemHomepage> items = const [
+    ItemHomepage('Lihat Proyek', Icons.folder, Color(0xFF526B50)),
+    ItemHomepage(
+      'Tambah Proyek',
+      Icons.add_circle,
+      Color(0xFF7EA87A),
+      foregroundColor: Color(0xFF12181F),
+    ),
+    ItemHomepage('Logout', Icons.logout, Color(0xFF9B4D4D)),
   ];
 
   @override
@@ -21,9 +27,8 @@ class MyHomePage extends StatelessWidget {
       appBar: AppBar(
         title: const Text(
           'MyPortfolio',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Theme.of(context).colorScheme.primary,
       ),
 
       // Body halaman utama dengan padding.

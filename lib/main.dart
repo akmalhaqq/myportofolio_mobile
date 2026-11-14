@@ -14,12 +14,14 @@ class MyApp extends StatelessWidget {
       title: 'MyPortfolio',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.indigo,
-          secondary: Colors.amber[700],
+          seedColor: const Color(0xFF7EA87A),
+          brightness: Brightness.dark,
+          surface: const Color(0xFF12181F),
+          onSurface: const Color(0xFFF2F0E8),
         ),
         useMaterial3: true,
       ),
-      home: MyHomePage(),
+      home: const MyHomePage(),
     );
   }
 }
