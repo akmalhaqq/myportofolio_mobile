@@ -2,14 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:myportofolio_mobile/models/item_homepage.dart';
 import 'package:myportofolio_mobile/widgets/info_card.dart';
 import 'package:myportofolio_mobile/widgets/item_card.dart';
+import 'package:myportofolio_mobile/widgets/project_preview.dart';
 
 class MyHomePage extends StatelessWidget {
   const MyHomePage({super.key});
   final String npm = "2506548295";
   final String nama = "Muhammad Akmal Haqqani";
   final String kelas = "PBP D";
+
+  static const _viewProjects = ItemHomepage(
+    'Lihat Proyek',
+    Icons.folder,
+    Color(0xFF526B50),
+  );
+
   final List<ItemHomepage> items = const [
-    ItemHomepage('Lihat Proyek', Icons.folder, Color(0xFF526B50)),
+    _viewProjects,
     ItemHomepage(
       'Tambah Proyek',
       Icons.add_circle,
@@ -79,7 +87,25 @@ class MyHomePage extends StatelessWidget {
                       runSpacing: spacing,
                       children: [
                         for (final item in items)
-                          SizedBox(width: cardWidth, child: ItemCard(item)),
+                          SizedBox(
+                            width: cardWidth,
+                            child: ItemCard(
+                              item,
+                              snackBarAction: item == _viewProjects
+                                  ? SnackBarAction(
+                                      label: 'Buka Proyek',
+                                      onPressed: () =>
+                                          showModalBottomSheet<void>(
+                                            context: context,
+                                            isScrollControlled: true,
+                                            useSafeArea: true,
+                                            builder: (_) =>
+                                                const ProjectPreview(),
+                                          ),
+                                    )
+                                  : null,
+                            ),
+                          ),
                       ],
                     ),
                   ],

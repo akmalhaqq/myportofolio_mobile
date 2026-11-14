@@ -3,8 +3,9 @@ import 'package:myportofolio_mobile/models/item_homepage.dart';
 
 class ItemCard extends StatelessWidget {
   final ItemHomepage item;
+  final SnackBarAction? snackBarAction;
 
-  const ItemCard(this.item, {super.key});
+  const ItemCard(this.item, {super.key, this.snackBarAction});
 
   @override
   Widget build(BuildContext context) {
@@ -18,6 +19,7 @@ class ItemCard extends StatelessWidget {
             ..showSnackBar(
               SnackBar(
                 content: Text('Kamu telah menekan tombol ${item.name}!'),
+                action: snackBarAction,
               ),
             );
         },

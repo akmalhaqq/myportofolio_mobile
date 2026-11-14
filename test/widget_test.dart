@@ -119,6 +119,31 @@ void main() {
         find.text('Kamu telah menekan tombol ${action.key}!'),
         findsOneWidget,
       );
+      expect(
+        find.text('Buka Proyek'),
+        action.key == 'Lihat Proyek' ? findsOneWidget : findsNothing,
+      );
     });
   }
+
+  testWidgets('opens and closes the project preview from the SnackBar', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MyApp());
+
+    await tester.tap(find.text('Lihat Proyek'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Buka Proyek'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(BottomSheet), findsOneWidget);
+    expect(find.text('MyPortfolio Mobile'), findsOneWidget);
+    expect(find.text('Dibangun dengan Flutter dan Dart.'), findsOneWidget);
+
+    await tester.tap(find.text('Tutup'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(BottomSheet), findsNothing);
+    expect(find.text('Lihat Proyek').hitTestable(), findsOneWidget);
+  });
 }
