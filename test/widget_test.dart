@@ -98,11 +98,7 @@ void main() {
     },
   );
 
-  const actions = {
-    'Lihat Proyek': Icons.folder,
-    'Tambah Proyek': Icons.add_circle,
-    'Logout': Icons.logout,
-  };
+  const actions = {'Lihat Proyek': Icons.folder, 'Logout': Icons.logout};
 
   for (final action in actions.entries) {
     testWidgets('shows the SnackBar for ${action.key}', (tester) async {
@@ -125,6 +121,30 @@ void main() {
       );
     });
   }
+
+  testWidgets('opens the form from Tambah Proyek and returns on Back', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MyApp());
+
+    final addProject = find.text('Tambah Proyek');
+    expect(find.byIcon(Icons.add_circle), findsOneWidget);
+    await tester.tap(addProject);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Add Project Form'), findsOneWidget);
+    expect(
+      find.text('Kamu telah menekan tombol Tambah Proyek!').hitTestable(),
+      findsOneWidget,
+    );
+    expect(find.text('Buka Proyek'), findsNothing);
+
+    expect(await tester.binding.handlePopRoute(), isTrue);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Add Project Form'), findsNothing);
+    expect(addProject.hitTestable(), findsOneWidget);
+  });
 
   testWidgets('opens and closes the project preview from the SnackBar', (
     tester,
