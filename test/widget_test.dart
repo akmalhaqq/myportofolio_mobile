@@ -49,6 +49,7 @@ void main() {
     const expectedColors = {
       'Lihat Proyek': (Color(0xFF526B50), Colors.white),
       'Tambah Proyek': (Color(0xFF7EA87A), Color(0xFF12181F)),
+      'Tambah Pengalaman': (Color(0xFF5D647A), Colors.white),
       'Logout': (Color(0xFF9B4D4D), Colors.white),
     };
 
@@ -87,7 +88,12 @@ void main() {
 
       expect(tester.takeException(), isNull);
 
-      for (final label in ['Lihat Proyek', 'Tambah Proyek', 'Logout']) {
+      for (final label in [
+        'Lihat Proyek',
+        'Tambah Proyek',
+        'Tambah Pengalaman',
+        'Logout',
+      ]) {
         final action = find.text(label);
         await tester.ensureVisible(action);
         await tester.pumpAndSettle();

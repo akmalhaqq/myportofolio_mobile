@@ -3,14 +3,15 @@ import 'package:material_ui/material_ui.dart';
 import 'package:myportofolio_mobile/main.dart';
 import 'package:myportofolio_mobile/screens/experience_form.dart';
 import 'package:myportofolio_mobile/validators/experience_validators.dart';
+import 'package:myportofolio_mobile/widgets/project_card.dart';
 
 Future<void> openExperienceForm(WidgetTester tester) async {
   await tester.pumpWidget(const MyApp());
-  tester
-      .state<NavigatorState>(find.byType(Navigator))
-      .push<void>(
-        MaterialPageRoute<void>(builder: (_) => const ExperienceFormPage()),
-      );
+  final card = find.widgetWithText(ItemCard, 'Tambah Pengalaman');
+  await tester.ensureVisible(card);
+  await tester.tap(card);
+  await tester.pumpAndSettle();
+  await tester.pump(const Duration(seconds: 4));
   await tester.pumpAndSettle();
 }
 
@@ -33,6 +34,58 @@ Future<void> tapSave(WidgetTester tester) async {
 }
 
 void main() {
+  testWidgets('experience card opens the form and Back returns Home', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MyApp());
+    await tester.tap(find.widgetWithText(ItemCard, 'Tambah Pengalaman'));
+    await tester.pumpAndSettle();
+    expect(find.byType(ExperienceFormPage), findsOneWidget);
+    expect(
+      find.text('Kamu telah menekan tombol Tambah Pengalaman!').hitTestable(),
+      findsOneWidget,
+    );
+
+    expect(await tester.binding.handlePopRoute(), isTrue);
+    await tester.pumpAndSettle();
+    expect(find.byType(ExperienceFormPage), findsNothing);
+    expect(
+      find.widgetWithText(ItemCard, 'Tambah Pengalaman').hitTestable(),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('shared drawer links Home, Add Project, and Add Experience', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const MyApp());
+
+    Future<void> selectDrawerItem(String label) async {
+      await tester.tap(find.byType(DrawerButton));
+      await tester.pumpAndSettle();
+      for (final option in ['Home', 'Add Project', 'Add Experience']) {
+        expect(find.widgetWithText(ListTile, option), findsOneWidget);
+      }
+      await tester.tap(find.widgetWithText(ListTile, label));
+      await tester.pumpAndSettle();
+    }
+
+    await selectDrawerItem('Add Experience');
+    expect(find.byType(ExperienceFormPage), findsOneWidget);
+    await selectDrawerItem('Home');
+    expect(find.byType(ExperienceFormPage), findsNothing);
+    expect(find.widgetWithText(ItemCard, 'Tambah Pengalaman'), findsOneWidget);
+
+    await selectDrawerItem('Add Project');
+    expect(find.text('Add Project Form'), findsOneWidget);
+    await selectDrawerItem('Add Experience');
+    expect(find.byType(ExperienceFormPage), findsOneWidget);
+    await selectDrawerItem('Add Project');
+    expect(find.text('Add Project Form'), findsOneWidget);
+    await selectDrawerItem('Home');
+    expect(find.widgetWithText(ItemCard, 'Tambah Pengalaman'), findsOneWidget);
+  });
+
   test('required experience text rejects null, empty, and whitespace', () {
     for (final value in [null, '', ' \n\t ']) {
       expect(validateExperienceText(value, label: 'Deskripsi'), isNotNull);

@@ -25,6 +25,7 @@ class MyHomePage extends StatelessWidget {
       Color(0xFF7EA87A),
       foregroundColor: Color(0xFF12181F),
     ),
+    ItemHomepage('Tambah Pengalaman', Icons.work_outline, Color(0xFF5D647A)),
     ItemHomepage('Logout', Icons.logout, Color(0xFF9B4D4D)),
   ];
 

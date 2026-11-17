@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:myportofolio_mobile/models/item_homepage.dart';
+import 'package:myportofolio_mobile/screens/experience_form.dart';
 import 'package:myportofolio_mobile/screens/project_form.dart';
 
 class ItemCard extends StatelessWidget {
@@ -27,6 +28,13 @@ class ItemCard extends StatelessWidget {
           if (item.name == 'Tambah Proyek') {
             Navigator.of(context).push<void>(
               MaterialPageRoute<void>(builder: (_) => const ProjectFormPage()),
+            );
+          }
+          if (item.name == 'Tambah Pengalaman') {
+            Navigator.of(context).push<void>(
+              MaterialPageRoute<void>(
+                builder: (_) => const ExperienceFormPage(),
+              ),
             );
           }
         },
