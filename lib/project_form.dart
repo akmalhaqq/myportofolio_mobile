@@ -19,15 +19,38 @@ class _ProjectFormPageState extends State<ProjectFormPage> {
     'Other',
   ];
 
+  String _projectName = '';
+  String _description = '';
+  String _category = _categories.first;
+  String _technologies = '';
+  String _projectLink = '';
+
   void _saveProject() {
     final form = _formKey.currentState!;
     if (!form.validate()) return;
+
+    form.save();
 
     showDialog<void>(
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
           title: const Text('Proyek berhasil ditambahkan!'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Nama Proyek: $_projectName'),
+                Text('Deskripsi: $_description'),
+                Text('Kategori: $_category'),
+                Text(
+                  'Teknologi: ${_technologies.isEmpty ? '-' : _technologies}',
+                ),
+                Text('Tautan: ${_projectLink.isEmpty ? '-' : _projectLink}'),
+              ],
+            ),
+          ),
           actions: [
             TextButton(
               onPressed: () {
@@ -55,6 +78,7 @@ class _ProjectFormPageState extends State<ProjectFormPage> {
             child: Column(
               children: [
                 TextFormField(
+                  onSaved: (value) => _projectName = value?.trim() ?? '',
                   decoration: const InputDecoration(
                     labelText: 'Nama Proyek',
                     border: OutlineInputBorder(),
@@ -69,6 +93,7 @@ class _ProjectFormPageState extends State<ProjectFormPage> {
                 const SizedBox(height: 12),
                 TextFormField(
                   maxLines: 5,
+                  onSaved: (value) => _description = value?.trim() ?? '',
                   decoration: const InputDecoration(
                     labelText: 'Deskripsi Proyek',
                     border: OutlineInputBorder(),
@@ -85,6 +110,7 @@ class _ProjectFormPageState extends State<ProjectFormPage> {
                   enabled: true,
                   initialValue: _categories.first,
                   isExpanded: true,
+                  onSaved: (value) => _category = value ?? _categories.first,
                   decoration: const InputDecoration(
                     labelText: 'Kategori Proyek',
                     border: OutlineInputBorder(),
@@ -99,6 +125,7 @@ class _ProjectFormPageState extends State<ProjectFormPage> {
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
+                  onSaved: (value) => _technologies = value?.trim() ?? '',
                   decoration: const InputDecoration(
                     labelText: 'Teknologi yang Digunakan',
                     hintText: 'Contoh: Flutter, Django, Figma',
@@ -108,6 +135,7 @@ class _ProjectFormPageState extends State<ProjectFormPage> {
                 const SizedBox(height: 12),
                 TextFormField(
                   keyboardType: TextInputType.url,
+                  onSaved: (value) => _projectLink = value?.trim() ?? '',
                   decoration: const InputDecoration(
                     labelText: 'Tautan Proyek',
                     hintText: 'URL Proyek (opsional)',
