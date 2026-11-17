@@ -34,14 +34,18 @@ Di layar sempit, kartu disusun satu kolom supaya nama dan label punya ruang untu
 .
 ├── lib/
 │   ├── main.dart                  # Entry point dan tema aplikasi
-│   ├── menu.dart                  # Halaman utama dan konfigurasi aksi
 │   ├── models/
 │   │   └── item_homepage.dart     # Nama, ikon, dan warna tiap aksi
+│   ├── screens/
+│   │   ├── menu.dart              # Halaman utama dan konfigurasi aksi
+│   │   └── project_form.dart      # Form tambah proyek
 │   └── widgets/
 │       ├── info_card.dart         # Kartu profil
-│       ├── item_card.dart         # Kartu aksi dan SnackBar
+│       ├── left_drawer.dart       # Navigasi drawer
+│       ├── project_card.dart      # Kartu aksi dan SnackBar
 │       └── project_preview.dart   # Isi panel pratinjau
 ├── test/
+│   ├── project_form_test.dart
 │   └── widget_test.dart
 ├── pubspec.yaml
 └── README.md
