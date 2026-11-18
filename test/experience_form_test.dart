@@ -2,7 +2,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:myportofolio_mobile/main.dart';
 import 'package:myportofolio_mobile/screens/experience_form.dart';
+import 'package:myportofolio_mobile/utils/experience_tags.dart';
 import 'package:myportofolio_mobile/validators/experience_validators.dart';
+import 'package:myportofolio_mobile/widgets/experience_preview.dart';
 import 'package:myportofolio_mobile/widgets/project_card.dart';
 
 Future<void> openExperienceForm(WidgetTester tester) async {
@@ -124,6 +126,102 @@ void main() {
     expect(validateExperienceCategory('Unknown'), isNotNull);
   });
 
+  test('tag parsing trims labels and skips empty comma-separated entries', () {
+    expect(parseExperienceTags(' Flutter, , Dart, Flutter, '), [
+      'Flutter',
+      'Dart',
+      'Flutter',
+    ]);
+    expect(parseExperienceTags(' , , '), isEmpty);
+    expect(validateExperienceTags(' , , '), isNotNull);
+    expect(validateExperienceTags(' Flutter, , Dart, '), isNull);
+  });
+
+  testWidgets(
+    'preview updates while typing and uses the same tags as summary',
+    (tester) async {
+      await openExperienceForm(tester);
+      final toggle = find.text('Pratinjau Pengalaman');
+      await tester.ensureVisible(toggle);
+      await tester.tap(toggle);
+      await tester.pumpAndSettle();
+
+      final preview = find.byType(ExperiencePreview);
+      Finder previewText(String text) =>
+          find.descendant(of: preview, matching: find.text(text));
+      expect(previewText('Jabatan / Nama Pengalaman: -'), findsOneWidget);
+      expect(previewText('Kategori: Other'), findsOneWidget);
+
+      await enterField(
+        tester,
+        'Jabatan / Nama Pengalaman',
+        '  Mentor Flutter  ',
+      );
+      await enterField(tester, 'Perusahaan / Organisasi', 'Komunitas');
+      await enterField(tester, 'Periode', '2026');
+      await enterField(tester, 'Deskripsi', 'Membimbing peserta.');
+      await enterField(tester, 'Tags', ' Flutter, , Dart, Flutter, ');
+      final category = find.byType(DropdownButtonFormField<String>);
+      await tester.ensureVisible(category);
+      await tester.tap(category);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Teaching').hitTestable());
+      await tester.pumpAndSettle();
+
+      for (final text in [
+        'Jabatan / Nama Pengalaman: Mentor Flutter',
+        'Perusahaan / Organisasi: Komunitas',
+        'Periode: 2026',
+        'Kategori: Teaching',
+        'Deskripsi: Membimbing peserta.',
+      ]) {
+        expect(previewText(text), findsOneWidget);
+      }
+      final chips = find.descendant(of: preview, matching: find.byType(Chip));
+      expect(chips, findsNWidgets(3));
+      expect(
+        tester.widgetList<Chip>(chips).map((chip) => (chip.label as Text).data),
+        ['Flutter', 'Dart', 'Flutter'],
+      );
+      expect(find.byType(AlertDialog), findsNothing);
+
+      await enterField(tester, 'Jabatan / Nama Pengalaman', 'Judul baru');
+      await enterField(tester, 'Tags', ' , , ');
+      expect(
+        previewText('Jabatan / Nama Pengalaman: Judul baru'),
+        findsOneWidget,
+      );
+      expect(chips, findsNothing);
+      await tapSave(tester);
+      expect(find.byType(AlertDialog), findsNothing);
+      expect(
+        find.text('Masukkan minimal satu tag selain koma!'),
+        findsOneWidget,
+      );
+
+      await enterField(tester, 'Tags', ' Dart, , Mentoring, ');
+      expect(previewText('Dart'), findsOneWidget);
+      expect(previewText('Mentoring'), findsOneWidget);
+      await tapSave(tester);
+      final dialog = find.byType(AlertDialog);
+      expect(
+        find.descendant(
+          of: dialog,
+          matching: find.text('Tags: Dart, Mentoring'),
+        ),
+        findsOneWidget,
+      );
+      await tester.tap(find.widgetWithText(TextButton, 'Tutup'));
+      await tester.pumpAndSettle();
+
+      await tester.ensureVisible(toggle);
+      await tester.tap(toggle);
+      await tester.pumpAndSettle();
+      expect(preview, findsNothing);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
   testWidgets('invalid fields block the summary and show errors', (
     tester,
   ) async {
@@ -238,10 +336,31 @@ void main() {
     final description = List.filled(35, 'Detail pengalaman.').join('\n');
     await enterField(tester, 'Deskripsi', description);
     await enterField(tester, 'Tags', 'Mentoring');
+    final toggle = find.text('Pratinjau Pengalaman');
+    await tester.ensureVisible(toggle);
+    await tester.tap(toggle);
+    await tester.pumpAndSettle();
+    final previewChip = find.descendant(
+      of: find.byType(ExperiencePreview),
+      matching: find.byType(Chip),
+    );
+    await tester.ensureVisible(previewChip);
+    await tester.pumpAndSettle();
+    expect(previewChip.hitTestable(), findsOneWidget);
     await tapSave(tester);
-    expect(find.byType(AlertDialog), findsOneWidget);
-    expect(find.text('Deskripsi: $description'), findsOneWidget);
-    final tags = find.text('Tags: Mentoring');
+    final dialog = find.byType(AlertDialog);
+    expect(dialog, findsOneWidget);
+    expect(
+      find.descendant(
+        of: dialog,
+        matching: find.text('Deskripsi: $description'),
+      ),
+      findsOneWidget,
+    );
+    final tags = find.descendant(
+      of: dialog,
+      matching: find.text('Tags: Mentoring'),
+    );
     await tester.ensureVisible(tags);
     await tester.pumpAndSettle();
     expect(tags.hitTestable(), findsOneWidget);

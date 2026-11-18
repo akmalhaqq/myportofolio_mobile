@@ -1,5 +1,7 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:myportofolio_mobile/utils/experience_tags.dart';
 import 'package:myportofolio_mobile/validators/experience_validators.dart';
+import 'package:myportofolio_mobile/widgets/experience_preview.dart';
 import 'package:myportofolio_mobile/widgets/left_drawer.dart';
 
 class ExperienceFormPage extends StatefulWidget {
@@ -41,7 +43,7 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
               Text('Periode: $_period'),
               Text('Kategori: $_category'),
               Text('Deskripsi: $_description'),
-              Text('Tags: $_tags'),
+              Text('Tags: ${parseExperienceTags(_tags).join(', ')}'),
             ],
           ),
           actions: [
@@ -80,6 +82,7 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
                     maxLength: experienceTextMaxLength,
                   ),
                   onSaved: (value) => _title = value!.trim(),
+                  onChanged: (value) => setState(() => _title = value),
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
@@ -94,6 +97,7 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
                     maxLength: experienceTextMaxLength,
                   ),
                   onSaved: (value) => _company = value!.trim(),
+                  onChanged: (value) => setState(() => _company = value),
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
@@ -109,6 +113,7 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
                     maxLength: experiencePeriodMaxLength,
                   ),
                   onSaved: (value) => _period = value!.trim(),
+                  onChanged: (value) => setState(() => _period = value),
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
@@ -128,6 +133,9 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
                   ],
                   validator: validateExperienceCategory,
                   onSaved: (value) => _category = value!,
+                  onChanged: (value) => setState(
+                    () => _category = value ?? experienceDefaultCategory,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
@@ -139,6 +147,7 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
                   validator: (value) =>
                       validateExperienceText(value, label: 'Deskripsi'),
                   onSaved: (value) => _description = value!.trim(),
+                  onChanged: (value) => setState(() => _description = value),
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
@@ -148,12 +157,23 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
                     helperText: 'Pisahkan dengan koma. Maksimal 255 karakter.',
                     border: OutlineInputBorder(),
                   ),
-                  validator: (value) => validateExperienceText(
-                    value,
-                    label: 'Tags',
-                    maxLength: experienceTextMaxLength,
-                  ),
+                  validator: validateExperienceTags,
                   onSaved: (value) => _tags = value!.trim(),
+                  onChanged: (value) => setState(() => _tags = value),
+                ),
+                const SizedBox(height: 16),
+                ExpansionTile(
+                  title: const Text('Pratinjau Pengalaman'),
+                  children: [
+                    ExperiencePreview(
+                      title: _title,
+                      company: _company,
+                      period: _period,
+                      category: _category,
+                      description: _description,
+                      tags: _tags,
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(

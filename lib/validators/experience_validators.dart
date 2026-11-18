@@ -1,3 +1,5 @@
+import 'package:myportofolio_mobile/utils/experience_tags.dart';
+
 const experienceCategories = [
   'Internship',
   'Organizational',
@@ -34,6 +36,20 @@ String? validateExperienceText(
 String? validateExperienceCategory(String? value) {
   if (!experienceCategories.contains(value)) {
     return 'Pilih kategori pengalaman yang tersedia!';
+  }
+  return null;
+}
+
+String? validateExperienceTags(String? value) {
+  final error = validateExperienceText(
+    value,
+    label: 'Tags',
+    maxLength: experienceTextMaxLength,
+  );
+  if (error != null) return error;
+
+  if (parseExperienceTags(value!).isEmpty) {
+    return 'Masukkan minimal satu tag selain koma!';
   }
   return null;
 }
