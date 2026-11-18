@@ -13,6 +13,7 @@ class ExperienceFormPage extends StatefulWidget {
 
 class _ExperienceFormPageState extends State<ExperienceFormPage> {
   final _formKey = GlobalKey<FormState>();
+  bool _hasSubmitted = false;
 
   String _title = '';
   String _company = '';
@@ -22,6 +23,7 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
   String _tags = '';
 
   void _saveExperience() {
+    setState(() => _hasSubmitted = true);
     final form = _formKey.currentState!;
     if (!form.validate()) return;
 
@@ -57,6 +59,45 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
     );
   }
 
+  Future<void> _resetExperience() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          scrollable: true,
+          title: const Text('Reset formulir?'),
+          content: const Text(
+            'Semua isian pengalaman akan dikosongkan dan kategori '
+            'dikembalikan ke Other.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Batal'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: const Text('Reset'),
+            ),
+          ],
+        );
+      },
+    );
+    if (!mounted || confirmed != true) return;
+
+    FocusScope.of(context).unfocus();
+    setState(() {
+      _hasSubmitted = false;
+      _title = '';
+      _company = '';
+      _period = '';
+      _category = experienceDefaultCategory;
+      _description = '';
+      _tags = '';
+    });
+    _formKey.currentState!.reset();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -65,12 +106,16 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
       body: SafeArea(
         child: Form(
           key: _formKey,
+          autovalidateMode: _hasSubmitted
+              ? AutovalidateMode.onUserInteraction
+              : AutovalidateMode.disabled,
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 TextFormField(
+                  textInputAction: TextInputAction.next,
                   decoration: const InputDecoration(
                     labelText: 'Jabatan / Nama Pengalaman',
                     helperText: 'Maksimal 255 karakter.',
@@ -86,6 +131,7 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
+                  textInputAction: TextInputAction.next,
                   decoration: const InputDecoration(
                     labelText: 'Perusahaan / Organisasi',
                     helperText: 'Maksimal 255 karakter.',
@@ -101,6 +147,7 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
+                  textInputAction: TextInputAction.next,
                   decoration: const InputDecoration(
                     labelText: 'Periode',
                     hintText: 'Agustus–Desember 2026',
@@ -140,6 +187,7 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
                 const SizedBox(height: 12),
                 TextFormField(
                   maxLines: 5,
+                  textInputAction: TextInputAction.newline,
                   decoration: const InputDecoration(
                     labelText: 'Deskripsi',
                     border: OutlineInputBorder(),
@@ -151,6 +199,8 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
+                  textInputAction: TextInputAction.done,
+                  onFieldSubmitted: (_) => _saveExperience(),
                   decoration: const InputDecoration(
                     labelText: 'Tags',
                     hintText: 'Flutter, Leadership, Mentoring',
@@ -179,6 +229,11 @@ class _ExperienceFormPageState extends State<ExperienceFormPage> {
                 ElevatedButton(
                   onPressed: _saveExperience,
                   child: const Text('Simpan'),
+                ),
+                const SizedBox(height: 8),
+                OutlinedButton(
+                  onPressed: _resetExperience,
+                  child: const Text('Reset'),
                 ),
               ],
             ),

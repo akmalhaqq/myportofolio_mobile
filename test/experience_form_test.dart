@@ -261,6 +261,183 @@ void main() {
     expect(find.byType(AlertDialog), findsNothing);
   });
 
+  testWidgets('errors update while editing after the first save attempt', (
+    tester,
+  ) async {
+    await openExperienceForm(tester);
+    await enterField(tester, 'Jabatan / Nama Pengalaman', '   ');
+    expect(
+      find.text('Jabatan / Nama Pengalaman tidak boleh kosong!'),
+      findsNothing,
+    );
+
+    await tapSave(tester);
+    expect(
+      find.text('Jabatan / Nama Pengalaman tidak boleh kosong!'),
+      findsOneWidget,
+    );
+    await enterField(tester, 'Jabatan / Nama Pengalaman', 'Mentor');
+    expect(
+      find.text('Jabatan / Nama Pengalaman tidak boleh kosong!'),
+      findsNothing,
+    );
+    await enterField(
+      tester,
+      'Jabatan / Nama Pengalaman',
+      List.filled(256, 'a').join(),
+    );
+    expect(
+      find.text('Jabatan / Nama Pengalaman maksimal 255 karakter!'),
+      findsOneWidget,
+    );
+    await enterField(tester, 'Jabatan / Nama Pengalaman', 'Mentor');
+    expect(
+      find.text('Jabatan / Nama Pengalaman maksimal 255 karakter!'),
+      findsNothing,
+    );
+  });
+
+  testWidgets(
+    'reset requires confirmation and clears fields errors and preview',
+    (tester) async {
+      await openExperienceForm(tester);
+      await enterField(tester, 'Jabatan / Nama Pengalaman', 'Mentor');
+      await enterField(tester, 'Perusahaan / Organisasi', 'Komunitas');
+      await enterField(tester, 'Periode', '   ');
+      await enterField(tester, 'Deskripsi', 'Membimbing peserta.');
+      await enterField(tester, 'Tags', 'Flutter, Dart');
+      final category = find.byType(DropdownButtonFormField<String>);
+      await tester.ensureVisible(category);
+      await tester.tap(category);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Community').hitTestable());
+      await tester.pumpAndSettle();
+      final toggle = find.text('Pratinjau Pengalaman');
+      await tester.ensureVisible(toggle);
+      await tester.tap(toggle);
+      await tester.pumpAndSettle();
+      await tapSave(tester);
+      expect(find.text('Periode tidak boleh kosong!'), findsOneWidget);
+
+      final preview = find.byType(ExperiencePreview);
+      final chips = find.descendant(of: preview, matching: find.byType(Chip));
+      expect(chips, findsNWidgets(2));
+      final originalTexts = tester
+          .widgetList<EditableText>(find.byType(EditableText))
+          .map((field) => field.controller.text)
+          .toList();
+
+      Future<void> requestReset() async {
+        final reset = find.widgetWithText(OutlinedButton, 'Reset');
+        await tester.ensureVisible(reset);
+        await tester.tap(reset);
+        await tester.pumpAndSettle();
+        expect(find.text('Reset formulir?'), findsOneWidget);
+      }
+
+      await requestReset();
+      await tester.tap(find.widgetWithText(TextButton, 'Batal'));
+      await tester.pumpAndSettle();
+      expect(
+        tester
+            .widgetList<EditableText>(find.byType(EditableText))
+            .map((field) => field.controller.text),
+        originalTexts,
+      );
+      expect(tester.state<FormFieldState<String>>(category).value, 'Community');
+      expect(chips, findsNWidgets(2));
+      expect(find.text('Periode tidak boleh kosong!'), findsOneWidget);
+
+      await requestReset();
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(tester.state<FormFieldState<String>>(category).value, 'Community');
+      expect(chips, findsNWidgets(2));
+
+      await requestReset();
+      await tester.tap(find.widgetWithText(FilledButton, 'Reset'));
+      await tester.pumpAndSettle();
+      expect(find.byType(AlertDialog), findsNothing);
+      expect(
+        tester
+            .widgetList<EditableText>(find.byType(EditableText))
+            .map((field) => field.controller.text),
+        ['', '', '', '', ''],
+      );
+      expect(tester.state<FormFieldState<String>>(category).value, 'Other');
+      for (final field in tester.stateList<FormFieldState<String>>(
+        find.byType(TextFormField),
+      )) {
+        expect(field.hasError, isFalse);
+      }
+      expect(chips, findsNothing);
+      for (final text in [
+        'Jabatan / Nama Pengalaman: -',
+        'Perusahaan / Organisasi: -',
+        'Periode: -',
+        'Kategori: Other',
+        'Deskripsi: -',
+        'Tags: -',
+      ]) {
+        expect(
+          find.descendant(of: preview, matching: find.text(text)),
+          findsOneWidget,
+        );
+      }
+      await enterField(tester, 'Jabatan / Nama Pengalaman', '   ');
+      expect(
+        find.text('Jabatan / Nama Pengalaman tidak boleh kosong!'),
+        findsNothing,
+      );
+
+      await enterField(tester, 'Jabatan / Nama Pengalaman', 'Pengalaman baru');
+      await enterField(tester, 'Perusahaan / Organisasi', 'Organisasi baru');
+      await enterField(tester, 'Periode', '2026');
+      await enterField(tester, 'Deskripsi', 'Deskripsi baru');
+      await enterField(tester, 'Tags', 'Mentoring');
+      await tapSave(tester);
+      final dialog = find.byType(AlertDialog);
+      for (final text in [
+        'Jabatan / Nama Pengalaman: Pengalaman baru',
+        'Perusahaan / Organisasi: Organisasi baru',
+        'Periode: 2026',
+        'Kategori: Other',
+        'Deskripsi: Deskripsi baru',
+        'Tags: Mentoring',
+      ]) {
+        expect(
+          find.descendant(of: dialog, matching: find.text(text)),
+          findsOneWidget,
+        );
+      }
+    },
+  );
+
+  testWidgets('keyboard Next moves focus and Done submits the current form', (
+    tester,
+  ) async {
+    await openExperienceForm(tester);
+    await enterField(tester, 'Jabatan / Nama Pengalaman', 'Mentor');
+    await tester.testTextInput.receiveAction(TextInputAction.next);
+    await tester.pumpAndSettle();
+    final companyEditor = find.descendant(
+      of: textField('Perusahaan / Organisasi'),
+      matching: find.byType(EditableText),
+    );
+    expect(
+      tester.widget<EditableText>(companyEditor).focusNode.hasFocus,
+      isTrue,
+    );
+    await enterField(tester, 'Perusahaan / Organisasi', 'Komunitas');
+    await enterField(tester, 'Periode', '2026');
+    await enterField(tester, 'Deskripsi', 'Baris pertama\nBaris kedua');
+    await enterField(tester, 'Tags', 'Mentoring');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pumpAndSettle();
+    expect(find.byType(AlertDialog), findsOneWidget);
+    expect(find.text('Deskripsi: Baris pertama\nBaris kedua'), findsOneWidget);
+  });
+
   testWidgets('summary shows all current values and keeps inputs when closed', (
     tester,
   ) async {
@@ -347,6 +524,19 @@ void main() {
     await tester.ensureVisible(previewChip);
     await tester.pumpAndSettle();
     expect(previewChip.hitTestable(), findsOneWidget);
+    final reset = find.widgetWithText(OutlinedButton, 'Reset');
+    await tester.ensureVisible(reset);
+    await tester.pumpAndSettle();
+    expect(reset.hitTestable(), findsOneWidget);
+    await tester.tap(reset);
+    await tester.pumpAndSettle();
+    expect(find.text('Batal').hitTestable(), findsOneWidget);
+    expect(
+      find.widgetWithText(FilledButton, 'Reset').hitTestable(),
+      findsOneWidget,
+    );
+    await tester.tap(find.text('Batal'));
+    await tester.pumpAndSettle();
     await tapSave(tester);
     final dialog = find.byType(AlertDialog);
     expect(dialog, findsOneWidget);
