@@ -438,10 +438,21 @@ void main() {
     expect(find.text('Deskripsi: Baris pertama\nBaris kedua'), findsOneWidget);
   });
 
-  testWidgets('summary shows all current values and keeps inputs when closed', (
+  testWidgets('drawer form validates and previews the latest values', (
     tester,
   ) async {
-    await openExperienceForm(tester);
+    await tester.pumpWidget(const MyApp());
+    await tester.tap(find.byType(DrawerButton));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(ListTile, 'Add Experience'));
+    await tester.pumpAndSettle();
+    expect(find.byType(ExperienceFormPage), findsOneWidget);
+
+    final dialog = find.byType(AlertDialog);
+    await tapSave(tester);
+    expect(dialog, findsNothing);
+    expect(find.text('Periode tidak boleh kosong!'), findsOneWidget);
+
     await enterField(tester, 'Jabatan / Nama Pengalaman', '  Flutter Intern  ');
     await enterField(tester, 'Perusahaan / Organisasi', 'Contoh Studio');
     await enterField(tester, 'Periode', 'Agustus–Desember 2026');
@@ -455,7 +466,6 @@ void main() {
     await enterField(tester, 'Tags', 'Flutter, Dart');
     await tapSave(tester);
 
-    final dialog = find.byType(AlertDialog);
     for (final text in [
       'Jabatan / Nama Pengalaman: Flutter Intern',
       'Perusahaan / Organisasi: Contoh Studio',
