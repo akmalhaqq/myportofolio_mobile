@@ -1,17 +1,27 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:myportofolio_mobile/screens/experience_form.dart';
-import 'package:myportofolio_mobile/screens/menu.dart';
 import 'package:myportofolio_mobile/screens/project_form.dart';
 import 'package:myportofolio_mobile/screens/project_list_screen.dart';
+import 'package:myportofolio_mobile/services/auth_state.dart';
+import 'package:myportofolio_mobile/widgets/auth_guard.dart';
+import 'package:provider/provider.dart';
 
 class LeftDrawer extends StatelessWidget {
   const LeftDrawer({super.key, this.viewingProjects = false});
 
   final bool viewingProjects;
 
+  void _openPage(NavigatorState navigator, WidgetBuilder builder) {
+    navigator.pushAndRemoveUntil<void>(
+      MaterialPageRoute<void>(builder: builder),
+      (route) => route.isFirst,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final auth = context.watch<AuthState>();
 
     return Drawer(
       child: ListView(
@@ -47,9 +57,7 @@ class LeftDrawer extends StatelessWidget {
             onTap: () {
               final navigator = Navigator.of(context);
               navigator.pop();
-              navigator.pushReplacement<void, void>(
-                MaterialPageRoute<void>(builder: (_) => const MyHomePage()),
-              );
+              navigator.popUntil((route) => route.isFirst);
             },
           ),
           ListTile(
@@ -60,24 +68,22 @@ class LeftDrawer extends StatelessWidget {
               final navigator = Navigator.of(context);
               navigator.pop();
               if (viewingProjects) return;
-              navigator.pushReplacement<void, void>(
-                MaterialPageRoute<void>(
-                  builder: (_) => const ProjectListScreen(),
-                ),
-              );
+              _openPage(navigator, (_) => const ProjectListScreen());
             },
           ),
           ListTile(
             leading: const Icon(Icons.add_circle_outline),
             title: const Text('Add Project'),
-            onTap: () {
+            onTap: () async {
               final navigator = Navigator.of(context);
+              final page = ModalRoute.of(context);
               navigator.pop();
-              navigator.pushReplacement<void, void>(
-                MaterialPageRoute<void>(
-                  builder: (_) => const ProjectFormPage(),
-                ),
-              );
+              if (!await ensureLoggedIn(context) ||
+                  !navigator.mounted ||
+                  page?.isCurrent != true) {
+                return;
+              }
+              _openPage(navigator, (_) => const ProjectFormPage());
             },
           ),
           ListTile(
@@ -86,12 +92,22 @@ class LeftDrawer extends StatelessWidget {
             onTap: () {
               final navigator = Navigator.of(context);
               navigator.pop();
-              navigator.pushReplacement<void, void>(
-                MaterialPageRoute<void>(
-                  builder: (_) => const ExperienceFormPage(),
-                ),
-              );
+              _openPage(navigator, (_) => const ExperienceFormPage());
             },
+          ),
+          ListTile(
+            leading: Icon(auth.isLoggedIn ? Icons.logout : Icons.login),
+            title: Text(auth.isLoggedIn ? 'Logout' : 'Login'),
+            onTap: auth.isLoggingOut
+                ? null
+                : () async {
+                    Navigator.of(context).pop();
+                    if (auth.isLoggedIn) {
+                      await logoutAndReturnHome(context);
+                    } else {
+                      await ensureLoggedIn(context);
+                    }
+                  },
           ),
         ],
       ),

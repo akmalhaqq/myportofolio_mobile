@@ -7,6 +7,8 @@ import 'package:myportofolio_mobile/validators/experience_validators.dart';
 import 'package:myportofolio_mobile/widgets/experience_preview.dart';
 import 'package:myportofolio_mobile/widgets/project_card.dart';
 
+import 'auth_test_support.dart';
+
 Future<void> openExperienceForm(WidgetTester tester) async {
   await tester.pumpWidget(const MyApp());
   final card = find.widgetWithText(ItemCard, 'Tambah Pengalaman');
@@ -60,7 +62,7 @@ void main() {
   testWidgets('shared drawer links Home, Add Project, and Add Experience', (
     tester,
   ) async {
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(appWithSuccessfulLogin());
 
     Future<void> selectDrawerItem(String label) async {
       await tester.tap(find.byType(DrawerButton));
@@ -72,6 +74,8 @@ void main() {
       await tester.pumpAndSettle();
     }
 
+    await selectDrawerItem('Login');
+    await loginWithTestCredentials(tester);
     await selectDrawerItem('Add Experience');
     expect(find.byType(ExperienceFormPage), findsOneWidget);
     await selectDrawerItem('Home');

@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:myportofolio_mobile/main.dart';
+
+import 'auth_test_support.dart';
 
 void main() {
   testWidgets('validates, previews, and resets each project submission', (
@@ -8,12 +9,13 @@ void main() {
   ) async {
     addTearDown(() => tester.binding.setSurfaceSize(null));
     await tester.binding.setSurfaceSize(const Size(400, 550));
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(appWithSuccessfulLogin());
 
     await tester.tap(find.byType(DrawerButton));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Add Project'));
     await tester.pumpAndSettle();
+    await loginWithTestCredentials(tester);
     expect(find.text('Add Project Form'), findsOneWidget);
 
     Future<void> enterField(String label, String value) async {

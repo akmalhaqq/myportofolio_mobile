@@ -3,6 +3,7 @@ import 'package:myportofolio_mobile/models/item_homepage.dart';
 import 'package:myportofolio_mobile/screens/experience_form.dart';
 import 'package:myportofolio_mobile/screens/project_form.dart';
 import 'package:myportofolio_mobile/screens/project_list_screen.dart';
+import 'package:myportofolio_mobile/widgets/auth_guard.dart';
 
 class ItemCard extends StatelessWidget {
   final ItemHomepage item;
@@ -15,13 +16,28 @@ class ItemCard extends StatelessWidget {
       color: item.color,
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
-        onTap: () {
+        onTap: () async {
+          if (item.name == 'Login') {
+            await ensureLoggedIn(context);
+            return;
+          }
+          if (item.name == 'Logout') {
+            await logoutAndReturnHome(context);
+            return;
+          }
           if (item.name == 'Lihat Proyek') {
             Navigator.of(context).push<void>(
               MaterialPageRoute<void>(
                 builder: (_) => const ProjectListScreen(),
               ),
             );
+            return;
+          }
+
+          if (item.name == 'Tambah Proyek' && !await ensureLoggedIn(context)) {
+            return;
+          }
+          if (!context.mounted || ModalRoute.of(context)?.isCurrent != true) {
             return;
           }
 

@@ -50,7 +50,7 @@ void main() {
       'Lihat Proyek': (Color(0xFF526B50), Colors.white),
       'Tambah Proyek': (Color(0xFF7EA87A), Color(0xFF12181F)),
       'Tambah Pengalaman': (Color(0xFF5D647A), Colors.white),
-      'Logout': (Color(0xFF9B4D4D), Colors.white),
+      'Login': (Color(0xFF456075), Colors.white),
     };
 
     for (final action in expectedColors.entries) {
@@ -92,7 +92,7 @@ void main() {
         'Lihat Proyek',
         'Tambah Proyek',
         'Tambah Pengalaman',
-        'Logout',
+        'Login',
       ]) {
         final action = find.text(label);
         await tester.ensureVisible(action);
@@ -103,36 +103,4 @@ void main() {
       }
     },
   );
-
-  testWidgets('shows the SnackBar for Logout', (tester) async {
-    await tester.pumpWidget(const MyApp());
-    expect(find.byIcon(Icons.logout), findsOneWidget);
-
-    await tester.tap(find.text('Logout'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Kamu telah menekan tombol Logout!'), findsOneWidget);
-  });
-
-  testWidgets('opens the form from Tambah Proyek and returns on Back', (
-    tester,
-  ) async {
-    await tester.pumpWidget(const MyApp());
-
-    final addProject = find.text('Tambah Proyek');
-    expect(find.byIcon(Icons.add_circle), findsOneWidget);
-    await tester.tap(addProject);
-    await tester.pumpAndSettle();
-
-    expect(find.text('Add Project Form'), findsOneWidget);
-    expect(
-      find.text('Kamu telah menekan tombol Tambah Proyek!').hitTestable(),
-      findsOneWidget,
-    );
-    expect(await tester.binding.handlePopRoute(), isTrue);
-    await tester.pumpAndSettle();
-
-    expect(find.text('Add Project Form'), findsNothing);
-    expect(addProject.hitTestable(), findsOneWidget);
-  });
 }
