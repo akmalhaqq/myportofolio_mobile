@@ -104,29 +104,15 @@ void main() {
     },
   );
 
-  const actions = {'Lihat Proyek': Icons.folder, 'Logout': Icons.logout};
+  testWidgets('shows the SnackBar for Logout', (tester) async {
+    await tester.pumpWidget(const MyApp());
+    expect(find.byIcon(Icons.logout), findsOneWidget);
 
-  for (final action in actions.entries) {
-    testWidgets('shows the SnackBar for ${action.key}', (tester) async {
-      await tester.pumpWidget(const MyApp());
+    await tester.tap(find.text('Logout'));
+    await tester.pumpAndSettle();
 
-      final label = find.text(action.key);
-      expect(label, findsOneWidget);
-      expect(find.byIcon(action.value), findsOneWidget);
-
-      await tester.tap(label);
-      await tester.pumpAndSettle();
-
-      expect(
-        find.text('Kamu telah menekan tombol ${action.key}!'),
-        findsOneWidget,
-      );
-      expect(
-        find.text('Buka Proyek'),
-        action.key == 'Lihat Proyek' ? findsOneWidget : findsNothing,
-      );
-    });
-  }
+    expect(find.text('Kamu telah menekan tombol Logout!'), findsOneWidget);
+  });
 
   testWidgets('opens the form from Tambah Proyek and returns on Back', (
     tester,
@@ -143,33 +129,10 @@ void main() {
       find.text('Kamu telah menekan tombol Tambah Proyek!').hitTestable(),
       findsOneWidget,
     );
-    expect(find.text('Buka Proyek'), findsNothing);
-
     expect(await tester.binding.handlePopRoute(), isTrue);
     await tester.pumpAndSettle();
 
     expect(find.text('Add Project Form'), findsNothing);
     expect(addProject.hitTestable(), findsOneWidget);
-  });
-
-  testWidgets('opens and closes the project preview from the SnackBar', (
-    tester,
-  ) async {
-    await tester.pumpWidget(const MyApp());
-
-    await tester.tap(find.text('Lihat Proyek'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Buka Proyek'));
-    await tester.pumpAndSettle();
-
-    expect(find.byType(BottomSheet), findsOneWidget);
-    expect(find.text('MyPortfolio Mobile'), findsOneWidget);
-    expect(find.text('Dibangun dengan Flutter dan Dart.'), findsOneWidget);
-
-    await tester.tap(find.text('Tutup'));
-    await tester.pumpAndSettle();
-
-    expect(find.byType(BottomSheet), findsNothing);
-    expect(find.text('Lihat Proyek').hitTestable(), findsOneWidget);
   });
 }

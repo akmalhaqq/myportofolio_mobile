@@ -12,15 +12,15 @@ Saya membuat aplikasi ini sebagai versi mobile dari portofolio pribadi untuk mat
 
 ### Profil dan Menu Aksi
 
-Di bagian atas ada tiga kartu yang menampilkan NPM, nama lengkap, dan kelas PBP. Di bawahnya ada **Lihat Proyek**, **Tambah Proyek**, **Tambah Pengalaman**, dan **Logout**. Setiap aksi punya ikon dan warna sendiri. Saat ditekan, kartu menampilkan SnackBar dengan nama aksinya.
+Di bagian atas ada tiga kartu yang menampilkan NPM, nama lengkap, dan kelas PBP. Di bawahnya ada **Lihat Proyek**, **Tambah Proyek**, **Tambah Pengalaman**, dan **Logout**. Setiap aksi punya ikon dan warna sendiri.
 
-### Pratinjau Proyek
+### Daftar dan Detail Proyek
 
-Tekan **Lihat Proyek**, lalu pilih **Buka Proyek** di SnackBar. Panel yang muncul dari bawah berisi ringkasan statis MyPortfolio Mobile dan teknologi yang dipakai. Tekan **Tutup** untuk kembali.
+Pilih **Lihat Proyek** dari Home atau drawer untuk membuka daftar publik dari API Django. Tarik daftar ke bawah untuk melihat data terbaru. Jika gagal dimuat, tekan **Coba Lagi**. Ketuk salah satu proyek untuk melihat deskripsi, teknologi, kategori, tahun, tautan, dan gambar jika tersedia.
 
 ### Formulir Proyek dan Pengalaman
 
-Kartu **Tambah Proyek** dan **Tambah Pengalaman** membuka masing-masing formulir. Drawer yang sama tersedia di halaman utama dan kedua formulir, dengan pilihan **Home**, **Add Project**, dan **Add Experience**. Saat isian lolos validasi, tombol **Save** atau **Simpan** membuka ringkasan dalam dialog. Data formulir hanya berada di memori selama halaman aktif.
+Kartu **Tambah Proyek** dan **Tambah Pengalaman** membuka masing-masing formulir. Drawer memuat pilihan **Home**, **Lihat Proyek**, **Add Project**, dan **Add Experience**. Saat isian lolos validasi, tombol **Save** atau **Simpan** membuka ringkasan dalam dialog. Data formulir hanya berada di memori selama halaman aktif.
 
 Formulir Pengalaman mengikuti model `Experience` di portofolio web. Jabatan, perusahaan atau organisasi, dan tags wajib diisi dengan batas 255 karakter. Periode berupa teks wajib dengan batas 100 karakter. Deskripsi wajib diisi dan bisa terdiri dari beberapa baris. Kategori dipilih dari dropdown dengan nilai awal `Other`. Tags dipisahkan dengan koma dan harus menghasilkan minimal satu label.
 
@@ -42,12 +42,18 @@ Di layar sempit, kartu disusun satu kolom supaya nama dan label punya ruang untu
 .
 ├── lib/
 │   ├── main.dart                  # Entry point dan tema aplikasi
+│   ├── config.dart                # Alamat backend Django
 │   ├── models/
-│   │   └── item_homepage.dart     # Nama, ikon, dan warna tiap aksi
+│   │   ├── item_homepage.dart     # Nama, ikon, dan warna tiap aksi
+│   │   └── project.dart           # Model proyek dari API
 │   ├── screens/
 │   │   ├── experience_form.dart   # Form tambah pengalaman dan ringkasan
 │   │   ├── menu.dart              # Halaman utama dan konfigurasi aksi
-│   │   └── project_form.dart      # Form tambah proyek
+│   │   ├── project_detail_screen.dart # Halaman detail proyek
+│   │   ├── project_form.dart      # Form tambah proyek
+│   │   └── project_list_screen.dart   # Daftar proyek dari Django
+│   ├── services/
+│   │   └── api_client.dart        # Request ke API Django
 │   ├── utils/
 │   │   └── experience_tags.dart   # Pemisahan tags berdasarkan koma
 │   ├── validators/
@@ -56,11 +62,12 @@ Di layar sempit, kartu disusun satu kolom supaya nama dan label punya ruang untu
 │       ├── experience_preview.dart # Pratinjau isian dan chip tags
 │       ├── info_card.dart         # Kartu profil
 │       ├── left_drawer.dart       # Navigasi drawer
-│       ├── project_card.dart      # Kartu aksi dan SnackBar
-│       └── project_preview.dart   # Isi panel pratinjau
+│       └── project_card.dart      # Kartu aksi dan SnackBar
 ├── test/
+│   ├── api_client_test.dart
 │   ├── experience_form_test.dart
 │   ├── project_form_test.dart
+│   ├── project_list_test.dart
 │   └── widget_test.dart
 ├── pubspec.yaml
 └── README.md
@@ -70,7 +77,7 @@ Di layar sempit, kartu disusun satu kolom supaya nama dan label punya ruang untu
 
 ### Prasyarat
 
-Siapkan Git, Flutter SDK yang menyertakan Dart sesuai syarat `^3.13.7`, dan target yang ingin dipakai. Gunakan Chrome untuk demo web atau siapkan Android SDK dan emulator atau perangkat Android untuk demo mobile. Demo berjalan tanpa server Django. [Dependensi aplikasi](pubspec.yaml) · [Panduan instalasi Flutter](https://docs.flutter.dev/install)
+Siapkan Git, Flutter SDK yang menyertakan Dart sesuai syarat `^3.13.7`, dan target yang ingin dipakai. Gunakan Chrome untuk demo web atau siapkan Android SDK dan emulator untuk demo mobile. Jalankan backend Django dari repo MyPortfolio untuk membuka daftar proyek. [Dependensi aplikasi](pubspec.yaml) · [Backend MyPortfolio](https://github.com/akmalhaqq/myportofolio)
 
 ### Menjalankan Aplikasi
 
@@ -82,15 +89,16 @@ cd myportofolio_mobile
 flutter --version
 flutter doctor
 flutter pub get
+dart run build_runner build
 ```
 
-Untuk menjalankan demo di Chrome, pilih Chrome sebagai target.
+Untuk Chrome, arahkan Flutter ke server Django lokal yang berjalan di port 8000.
 
 ```sh
-flutter run -d chrome
+flutter run -d chrome --dart-define=API_BASE_URL=http://localhost:8000
 ```
 
-Untuk Android, nyalakan emulator atau hubungkan HP, lalu jalankan aplikasi.
+Untuk Android, nyalakan emulator dan jalankan aplikasi. Alamat Django default adalah `http://10.0.2.2:8000`.
 
 ```sh
 flutter devices
@@ -101,7 +109,7 @@ Kalau ada beberapa perangkat, pakai `flutter run -d <device-id>`. ID perangkatny
 
 ### Menjalankan Pengujian
 
-Dari root repo, jalankan perintah berikut setelah `flutter pub get`.
+Dari root repo, jalankan perintah berikut setelah konfigurasi awal dan pembuatan serializer di atas.
 
 ```sh
 dart format --output=none --set-exit-if-changed lib test

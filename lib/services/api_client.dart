@@ -17,7 +17,7 @@ class ApiException implements Exception {
 class ApiClient {
   ApiClient({http.Client? client, String baseUrl = apiBaseUrl})
     : _client = client ?? http.Client(),
-      _baseUri = Uri.parse(baseUrl);
+      baseUri = Uri.parse(baseUrl);
 
   static const _projectPath = '/api/v1/projects/';
   static const _jsonHeaders = {
@@ -26,11 +26,11 @@ class ApiClient {
   };
 
   final http.Client _client;
-  final Uri _baseUri;
+  final Uri baseUri;
 
   Future<List<Project>> getProjects() async {
     final response = await _client.get(
-      _baseUri.resolve(_projectPath),
+      baseUri.resolve(_projectPath),
       headers: const {'Accept': 'application/json'},
     );
     _ensureSuccess(response);
@@ -46,7 +46,7 @@ class ApiClient {
     required String token,
   }) async {
     final response = await _client.post(
-      _baseUri.resolve(_projectPath),
+      baseUri.resolve(_projectPath),
       headers: {..._jsonHeaders, 'Authorization': 'Token $token'},
       body: jsonEncode(project.toJson()),
     );
@@ -58,7 +58,7 @@ class ApiClient {
 
   Future<String> obtainToken(String username, String password) async {
     final response = await _client.post(
-      _baseUri.resolve('/api/v1/auth/token/'),
+      baseUri.resolve('/api/v1/auth/token/'),
       headers: _jsonHeaders,
       body: jsonEncode({'username': username, 'password': password}),
     );
@@ -70,7 +70,7 @@ class ApiClient {
 
   Future<void> logout({required String token}) async {
     final response = await _client.post(
-      _baseUri.resolve('/api/v1/auth/logout/'),
+      baseUri.resolve('/api/v1/auth/logout/'),
       headers: {'Accept': 'application/json', 'Authorization': 'Token $token'},
     );
     _ensureSuccess(response);

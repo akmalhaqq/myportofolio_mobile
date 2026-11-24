@@ -2,9 +2,12 @@ import 'package:material_ui/material_ui.dart';
 import 'package:myportofolio_mobile/screens/experience_form.dart';
 import 'package:myportofolio_mobile/screens/menu.dart';
 import 'package:myportofolio_mobile/screens/project_form.dart';
+import 'package:myportofolio_mobile/screens/project_list_screen.dart';
 
 class LeftDrawer extends StatelessWidget {
-  const LeftDrawer({super.key});
+  const LeftDrawer({super.key, this.viewingProjects = false});
+
+  final bool viewingProjects;
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +49,21 @@ class LeftDrawer extends StatelessWidget {
               navigator.pop();
               navigator.pushReplacement<void, void>(
                 MaterialPageRoute<void>(builder: (_) => const MyHomePage()),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.folder_outlined),
+            title: const Text('Lihat Proyek'),
+            selected: viewingProjects,
+            onTap: () {
+              final navigator = Navigator.of(context);
+              navigator.pop();
+              if (viewingProjects) return;
+              navigator.pushReplacement<void, void>(
+                MaterialPageRoute<void>(
+                  builder: (_) => const ProjectListScreen(),
+                ),
               );
             },
           ),

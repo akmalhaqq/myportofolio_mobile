@@ -2,12 +2,12 @@ import 'package:material_ui/material_ui.dart';
 import 'package:myportofolio_mobile/models/item_homepage.dart';
 import 'package:myportofolio_mobile/screens/experience_form.dart';
 import 'package:myportofolio_mobile/screens/project_form.dart';
+import 'package:myportofolio_mobile/screens/project_list_screen.dart';
 
 class ItemCard extends StatelessWidget {
   final ItemHomepage item;
-  final SnackBarAction? snackBarAction;
 
-  const ItemCard(this.item, {super.key, this.snackBarAction});
+  const ItemCard(this.item, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -16,12 +16,20 @@ class ItemCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         onTap: () {
+          if (item.name == 'Lihat Proyek') {
+            Navigator.of(context).push<void>(
+              MaterialPageRoute<void>(
+                builder: (_) => const ProjectListScreen(),
+              ),
+            );
+            return;
+          }
+
           ScaffoldMessenger.of(context)
             ..hideCurrentSnackBar()
             ..showSnackBar(
               SnackBar(
                 content: Text('Kamu telah menekan tombol ${item.name}!'),
-                action: snackBarAction,
               ),
             );
 
