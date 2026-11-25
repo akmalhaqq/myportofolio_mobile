@@ -121,6 +121,12 @@ flutter test
 
 Tes mencakup tema dan layout halaman utama, navigasi dari kartu dan drawer, validasi batas panjang, ringkasan terbaru, pratinjau langsung, reset, serta penggunaan formulir ketika keyboard tampil. Pada pengujian tahap kelima, `flutter analyze` bersih dan 22 tes lulus. [Tes halaman utama](test/widget_test.dart) · [Tes formulir Proyek](test/project_form_test.dart) · [Tes formulir Pengalaman](test/experience_form_test.dart)
 
+### CI dan APK Android
+
+Workflow **CI** berjalan pada push ke `main` dan pada pull request. Job `build` membuat serializer, memeriksa format dan analisis statis, serta menjalankan tes dengan coverage. Job `build_apk` berjalan setelahnya dan mengunggah `app-release.apk` sebagai artefak **app-release-apk**.
+
+APK dari workflow memakai alamat HTTPS portofolio Django. Variabel repo `API_BASE_URL` bisa mengarahkannya ke deployment HTTPS lain. Fitur login dan simpan memerlukan endpoint autentikasi dari Tutorial 10 serta migrasi token pada deployment Django. [Workflow CI](.github/workflows/main.yaml)
+
 ### Skenario Demo Tugas 8
 
 1. Buka **Tambah Pengalaman** dari kartu Home. Pada perangkat Android, gunakan tombol Back sistem untuk kembali ke Home.
