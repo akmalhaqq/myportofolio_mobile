@@ -50,7 +50,9 @@ class ApiClient {
       headers: {..._jsonHeaders, 'Authorization': 'Token $token'},
       body: jsonEncode(project.toJson()),
     );
-    _ensureSuccess(response);
+    if (response.statusCode != 201) {
+      throw ApiException(response.statusCode, response.body);
+    }
     final json =
         jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
     return Project.fromJson(json);

@@ -20,11 +20,13 @@ Pilih **Lihat Proyek** dari Home atau drawer untuk membuka daftar publik dari AP
 
 ### Formulir Proyek dan Pengalaman
 
-Kartu **Tambah Proyek** dan **Tambah Pengalaman** membuka masing-masing formulir. Tambah Proyek meminta login Django jika belum ada sesi, baik dari kartu Home maupun drawer. Drawer juga menyediakan **Login** atau **Logout**. Token disimpan di memori selama sesi aplikasi. Saat isian lolos validasi, tombol **Save** atau **Simpan** membuka ringkasan dalam dialog. Data formulir hanya berada di memori selama halaman aktif.
+Kartu **Tambah Proyek** dan **Tambah Pengalaman** membuka masing-masing formulir. Tambah Proyek meminta login Django jika belum ada sesi, baik dari kartu Home maupun drawer. Drawer juga menyediakan **Login** atau **Logout**. Token disimpan di memori selama sesi aplikasi.
+
+Tombol **Save** mengirim formulir Proyek ke Django dengan token akun superuser. Nama, kategori, deskripsi, teknologi, dan tahun perlu diisi. Tautan proyek dan URL gambar bersifat opsional. Setelah Django mengonfirmasi penyimpanan, aplikasi menampilkan ringkasan dan mengosongkan formulir. Jika token ditolak, aplikasi meminta login ulang sambil mempertahankan isian.
 
 Formulir Pengalaman mengikuti model `Experience` di portofolio web. Jabatan, perusahaan atau organisasi, dan tags wajib diisi dengan batas 255 karakter. Periode berupa teks wajib dengan batas 100 karakter. Deskripsi wajib diisi dan bisa terdiri dari beberapa baris. Kategori dipilih dari dropdown dengan nilai awal `Other`. Tags dipisahkan dengan koma dan harus menghasilkan minimal satu label.
 
-Panel **Pratinjau Pengalaman** bisa dibuka atau ditutup. Isinya mengikuti perubahan formulir dan menampilkan tags sebagai chip. Menutup ringkasan mempertahankan isian agar bisa dikoreksi. Tombol **Reset** meminta konfirmasi sebelum mengosongkan formulir dan mengembalikan kategori ke `Other`.
+Panel **Pratinjau Pengalaman** bisa dibuka atau ditutup. Isinya mengikuti perubahan formulir dan menampilkan tags sebagai chip. Tombol **Simpan** membuka ringkasan lokal. Menutup ringkasan mempertahankan isian agar bisa dikoreksi. Tombol **Reset** meminta konfirmasi sebelum mengosongkan formulir dan mengembalikan kategori ke `Other`.
 
 ### Layout Responsif
 
